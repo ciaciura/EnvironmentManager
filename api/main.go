@@ -1,6 +1,7 @@
 package main
 
 import (
+	"EnvManager-api/db"
 	"EnvManager-api/handlers"
 	"EnvManager-api/middleware"
 	"log"
@@ -10,6 +11,14 @@ import (
 )
 
 func main() {
+	//mongoURI := os.Getenv("MONGODB_URI")
+	mongoURI := "mongodb://admin:password@localhost:27017"
+	if mongoURI == "" {
+		log.Fatal("MONGODB_URI environment variable is not set")
+	}
+
+	db.Connect()
+
 	r := mux.NewRouter()
 
 	// Auth and JWT Middleware
