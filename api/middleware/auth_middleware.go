@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -22,7 +23,7 @@ func GenerateJWT(username, role string) (string, error) {
 		"role":     role,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
-	return token.SignedString([]byte(config.JWTSecret))
+	return token.SignedString([]byte(config.JWT_SECRET))
 }
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -33,7 +34,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.JWTSecret), nil
+			return []byte(config.JWT_SECRET), nil
 		})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Failed to parse the Authorization token"})
@@ -54,6 +55,7 @@ func AuthMiddleware() gin.HandlerFunc {
 func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role := c.GetString("role")
+		fmt.Println("User role:", role)
 		if role != "admin" {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
 			return

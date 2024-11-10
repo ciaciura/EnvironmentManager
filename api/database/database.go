@@ -41,15 +41,15 @@ func (db *DBClient) UpdateOne(ctx context.Context, collectionName string, filter
 }
 
 func (db *DBClient) EnsureDefaultAdmin(ctx context.Context) {
-	filter := bson.M{"username": config.AdminUsername}
+	filter := bson.M{"username": config.ADMIN_USERNAME}
 	var existingUser models.User
 	collection := db.GetCollection("users")
 	err := collection.FindOne(ctx, filter).Decode(&existingUser)
 	if err == mongo.ErrNoDocuments {
 		// No user found, create the default admin
 		defaultAdmin := models.User{
-			Username: config.AdminUsername,
-			Password: config.AdminPassword,
+			Username: config.ADMIN_USERNAME,
+			Password: config.ADMIN_PASSWORD,
 			Role:     "admin",
 		}
 		_, err := db.InsertOne(ctx, "users", defaultAdmin)

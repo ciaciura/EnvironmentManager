@@ -35,21 +35,21 @@ var dbClient *database.DBClient
 func main() {
 	if config.Env == "DEV" {
 		fmt.Println("Environment", config.Env)
-		fmt.Println("JWT Secret:", config.JWTSecret)
-		fmt.Println("MongoDB URI:", config.MongoDBURI)
-		fmt.Println("MongoDB Database:", config.MongoDBDatabase)
-		fmt.Println("Admin Username:", config.AdminUsername)
-		fmt.Println("Admin Password:", config.AdminPassword)
-		fmt.Println("App Port:", config.AppPort)
+		fmt.Println("JWT Secret:", config.JWT_SECRET)
+		fmt.Println("MongoDB URI:", config.MONGODB_URI)
+		fmt.Println("MongoDB Database:", config.MONGODB_DATABASE)
+		fmt.Println("Admin Username:", config.ADMIN_USERNAME)
+		fmt.Println("Admin Password:", config.ADMIN_PASSWORD)
+		fmt.Println("App Port:", config.APP_PORT)
 	}
 	// Set up MongoDB client
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoDBURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MONGODB_URI))
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbClient = &database.DBClient{Client: client, Database: config.MongoDBDatabase}
+	dbClient = &database.DBClient{Client: client, Database: config.MONGODB_DATABASE}
 
 	// Ensure default admin user exists
 	dbClient.EnsureDefaultAdmin(ctx)
@@ -65,5 +65,5 @@ func main() {
 	controllers.InitializeServerRoutes(r, dbClient)
 	controllers.InitializeUserRoutes(r, dbClient)
 	// Run the server
-	r.Run(config.AppPort)
+	r.Run(config.APP_PORT)
 }
