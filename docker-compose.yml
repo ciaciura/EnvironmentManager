@@ -8,12 +8,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: your_database_name
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
     ports:
       - 27017:27017
     volumes:
       - mongo_data:/data/db
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
 
   # Go application service
   app:
@@ -22,14 +21,18 @@ services:
       dockerfile: Dockerfile
     container_name: go_app
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:${APP_PORT}"
     environment:
       - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - APP_PORT=${APP_PORT}
     depends_on:
       - mongodb_service
     volumes:
-      - .:/app
+      - ./api:/app
 
 volumes:
   mongo_data:

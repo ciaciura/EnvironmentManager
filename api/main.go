@@ -1,34 +1,44 @@
 package main
 
 import (
-	"EnvManager-api/db"
-	"EnvManager-api/handlers"
-	"EnvManager-api/middleware"
+	"context"
 	"log"
-	"net/http"
+	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"EnvManager-api/config"
+	"EnvManager-api/controllers"
+	"EnvManager-api/database"
+	"EnvManager-api/middleware"
 )
 
+var dbClient *database.DBClient
+
 func main() {
-	//mongoURI := os.Getenv("MONGODB_URI")
-	mongoURI := "mongodb://admin:password@localhost:27017"
-	if mongoURI == "" {
-		log.Fatal("MONGODB_URI environment variable is not set")
+	// Set up MongoDB client
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoDBURI))
+	if err != nil {
+		log.Fatal(err)
 	}
+	dbClient = &database.DBClient{Client: client, Database: config.MongoDBDatabase}
 
-	db.Connect()
+	// Ensure default admin user exists
+	dbClient.EnsureDefaultAdmin(ctx)
 
-	r := mux.NewRouter()
+	r := gin.Default()
 
-	// Auth and JWT Middleware
-	r.Use(middleware.JWTAuthMiddleware)
+	// Routes
+	r.POST("/login", controllers.Login)
 
-	// Server Management Endpoints
-	r.HandleFunc("/servers", handlers.GetServers).Methods("GET")
-	r.HandleFunc("/servers", handlers.CreateServer).Methods("POST")
-	r.HandleFunc("/servers/{id}", handlers.UpdateServer).Methods("PUT")
-	r.HandleFunc("/servers/{id}", handlers.DeleteServer).Methods("DELETE")
+	r.Use(middleware.AuthMiddleware())
+	controllers.InitializeServerRoutes(r, dbClient)
+	controllers.InitializeUserRoutes(r, dbClient)
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	// Run the server
+	r.Run(config.AppPort)
 }
