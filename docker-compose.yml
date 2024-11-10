@@ -23,16 +23,16 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGODB_URI=${MONGODB_URI}
       - JWT_SECRET=${JWT_SECRET}
       - MONGODB_DATABASE=${MONGODB_DATABASE}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - APP_PORT=${APP_PORT}
+      - Env=${Env}
     depends_on:
       - mongodb_service
-    volumes:
-      - ./api:/app
+
 
 volumes:
   mongo_data:

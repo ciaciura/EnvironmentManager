@@ -17,6 +17,7 @@ func InitializeServerRoutes(router *gin.Engine, client *database.DBClient) {
 	dbClient = client
 	router.GET("/servers", GetServers)
 	router.POST("/servers/request", RequestAccess)
+	router.POST("/servers/add", AddServer)
 }
 
 func GetServers(c *gin.Context) {
@@ -42,6 +43,24 @@ func GetServers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, servers)
+}
+
+func AddServer(c *gin.Context) {
+	var server models.Server
+	if err := c.BindJSON(&server); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := dbClient.InsertOne(ctx, "servers", server)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating a server"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Server created"})
 }
 
 func RequestAccess(c *gin.Context) {

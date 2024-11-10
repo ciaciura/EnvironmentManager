@@ -40,24 +40,13 @@ func (db *DBClient) UpdateOne(ctx context.Context, collectionName string, filter
 	return result, err
 }
 
-func (db *DBClient) CountDocuments(ctx context.Context, collectionName string, filter interface{}) (int64, error) {
-	collection := db.GetCollection(collectionName)
-	log.Printf("Counting documents in collection: %s", collectionName)
-	count, err := collection.CountDocuments(ctx, filter)
-	if err != nil {
-		log.Printf("Error counting documents: %v", err)
-	}
-	return count, err
-}
-
 func (db *DBClient) EnsureDefaultAdmin(ctx context.Context) {
 	filter := bson.M{"username": config.AdminUsername}
-	count, err := db.CountDocuments(ctx, "users", filter)
-	if err != nil {
-		log.Fatalf("Error checking for default admin user: %v", err)
-	}
-
-	if count == 0 {
+	var existingUser models.User
+	collection := db.GetCollection("users")
+	err := collection.FindOne(ctx, filter).Decode(&existingUser)
+	if err == mongo.ErrNoDocuments {
+		// No user found, create the default admin
 		defaultAdmin := models.User{
 			Username: config.AdminUsername,
 			Password: config.AdminPassword,
@@ -68,6 +57,8 @@ func (db *DBClient) EnsureDefaultAdmin(ctx context.Context) {
 			log.Fatalf("Error creating default admin user: %v", err)
 		}
 		log.Println("Default admin user created")
+	} else if err != nil {
+		log.Fatalf("Error checking for default admin user: %v", err)
 	} else {
 		log.Println("Default admin user already exists")
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -18,6 +19,15 @@ import (
 var dbClient *database.DBClient
 
 func main() {
+	if config.Env == "DEV" {
+		fmt.Println("Environment", config.Env)
+		fmt.Println("JWT Secret:", config.JWTSecret)
+		fmt.Println("MongoDB URI:", config.MongoDBURI)
+		fmt.Println("MongoDB Database:", config.MongoDBDatabase)
+		fmt.Println("Admin Username:", config.AdminUsername)
+		fmt.Println("Admin Password:", config.AdminPassword)
+		fmt.Println("App Port:", config.AppPort)
+	}
 	// Set up MongoDB client
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
