@@ -9,10 +9,3 @@ var AdminUsername = os.Getenv("ADMIN_USERNAME")
 var AdminPassword = os.Getenv("ADMIN_PASSWORD")
 var AppPort = ":" + os.Getenv("APP_PORT")
 var Env = os.Getenv("Env")
-
-// var JWTSecret = "your_secret_key"
-// var MongoDBURI = "mongodb://admin:password@localhost:27017"
-// var MongoDBDatabase = "envmanager_dev"
-// var AdminUsername = "admin"
-// var AdminPassword = "password"
-// var AppPort = ":37564"

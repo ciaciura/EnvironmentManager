@@ -13,3 +13,8 @@ type AccessRequest struct {
 	Status    string             `bson:"status" json:"status"`
 	Requested time.Time          `bson:"requested" json:"requested"`
 }
+
+type AccessRequestDTO struct {
+	ServerID primitive.ObjectID `bson:"server_id" json:"server_id"`
+	Username string             `bson:"username" json:"username"`
+}

@@ -1,0 +1,241 @@
+definitions:
+  models.AccessRequestDTO:
+    properties:
+      server_id:
+        type: string
+      username:
+        type: string
+    type: object
+  models.Server:
+    properties:
+      environment:
+        type: string
+      id:
+        type: string
+      ip:
+        type: string
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      password:
+        type: string
+      role:
+        description: Role can be "admin" or "employee"
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Api for Environment access management.
+  title: EnvironmentManager
+paths:
+  /admin/user:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "500":
+          description: Error creating user
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - JWT: []
+      summary: Create a new user
+      tags:
+      - users
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user and generates a JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token and role
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "500":
+          description: Could not generate token
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /servers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all servers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Server'
+            type: array
+        "500":
+          description: Error fetching servers
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - JWT: []
+      summary: List all servers
+      tags:
+      - servers
+  /servers/add:
+    post:
+      consumes:
+      - application/json
+      description: Create a new server
+      parameters:
+      - description: Server details
+        in: body
+        name: server
+        required: true
+        schema:
+          $ref: '#/definitions/models.Server'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server created
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "500":
+          description: Error creating a server
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - JWT: []
+      summary: Add a new server
+      tags:
+      - servers
+  /servers/request-access:
+    post:
+      consumes:
+      - application/json
+      description: Submits an access request for a server
+      parameters:
+      - description: Server access request details
+        in: body
+        name: serverRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.AccessRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access request submitted
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+        "500":
+          description: Error requesting access
+          schema:
+            additionalProperties:
+              items:
+                type: string
+              type: array
+            type: object
+      security:
+      - JWT: []
+      summary: Request access to a server
+      tags:
+      - servers
+securityDefinitions:
+  JWT:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

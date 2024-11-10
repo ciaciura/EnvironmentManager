@@ -16,6 +16,17 @@ func InitializeUserRoutes(router *gin.Engine, client *database.DBClient) {
 	router.POST("/admin/user", middleware.AdminOnly(), CreateUser)
 }
 
+// @Summary Create a new user
+// @Description Create a new user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Security JWT
+// @Param user body models.User true "User details"
+// @Success 200 {object} map[string][]string "User created"
+// @Failure 400 {object} map[string][]string "Invalid request"
+// @Failure 500 {object} map[string][]string "Error creating user"
+// @Router /admin/user [post]
 func CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {

@@ -10,13 +10,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"EnvManager-api/config"
 	"EnvManager-api/controllers"
 	"EnvManager-api/database"
+	docs "EnvManager-api/docs"
 	"EnvManager-api/middleware"
 )
 
 var dbClient *database.DBClient
+
+// @title EnvironmentManager
+// @description Api for Environment access management.
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name Authorization
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8081
+// @BasePath /api/v1
 
 func main() {
 	if config.Env == "DEV" {
@@ -41,14 +55,15 @@ func main() {
 	dbClient.EnsureDefaultAdmin(ctx)
 
 	r := gin.Default()
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	// Routes
 	r.POST("/login", controllers.Login)
-
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/swagger", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Use(middleware.AuthMiddleware())
 	controllers.InitializeServerRoutes(r, dbClient)
 	controllers.InitializeUserRoutes(r, dbClient)
-
 	// Run the server
 	r.Run(config.AppPort)
 }

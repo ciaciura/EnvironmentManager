@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func InitializeServerRoutes(router *gin.Engine, client *database.DBClient) {
@@ -20,6 +19,15 @@ func InitializeServerRoutes(router *gin.Engine, client *database.DBClient) {
 	router.POST("/servers/add", AddServer)
 }
 
+// @Summary List all servers
+// @Description Retrieve a list of all servers
+// @Tags servers
+// @Accept  json
+// @Produce  json
+// @Security JWT
+// @Success 200 {array} models.Server
+// @Failure 500 {object} map[string][]string "Error fetching servers"
+// @Router /servers [get]
 func GetServers(c *gin.Context) {
 	collection := dbClient.GetCollection("servers")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -45,6 +53,17 @@ func GetServers(c *gin.Context) {
 	c.JSON(http.StatusOK, servers)
 }
 
+// @Summary Add a new server
+// @Description Create a new server
+// @Tags servers
+// @Accept  json
+// @Produce  json
+// @Security JWT
+// @Param server body models.Server true "Server details"
+// @Success 200 {object} map[string][]string "Server created"
+// @Failure 400 {object} map[string][]string "Invalid request"
+// @Failure 500 {object} map[string][]string "Error creating a server"
+// @Router /servers/add [post]
 func AddServer(c *gin.Context) {
 	var server models.Server
 	if err := c.BindJSON(&server); err != nil {
@@ -63,24 +82,27 @@ func AddServer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Server created"})
 }
 
+// @Summary Request access to a server
+// @Description Submits an access request for a server
+// @Tags servers
+// @Accept  json
+// @Produce  json
+// @Security JWT
+// @Param serverRequest body models.AccessRequestDTO true "Server access request details"
+// @Success 200 {object} map[string][]string "Access request submitted"
+// @Failure 400 {object} map[string][]string "Invalid request"
+// @Failure 500 {object} map[string][]string "Error requesting access"
+// @Router /servers/request-access [post]
 func RequestAccess(c *gin.Context) {
-	var serverRequest struct {
-		ServerID primitive.ObjectID `json:"server_id"`
-	}
+	var serverRequest models.AccessRequestDTO
 	if err := c.BindJSON(&serverRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	username := c.GetString("username")
-	if username == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authorized"})
-		return
-	}
-
 	accessRequest := models.AccessRequest{
 		ServerID:  serverRequest.ServerID,
-		Username:  username,
+		Username:  serverRequest.Username,
 		Status:    "pending",
 		Requested: time.Now(),
 	}
