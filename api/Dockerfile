@@ -19,4 +19,3 @@ FROM alpine:latest
 COPY --from=builder /app /app
 
 CMD [ "/app" ]
-#CMD ["sleep", "infinity"]

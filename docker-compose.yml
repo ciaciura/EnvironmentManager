@@ -15,11 +15,11 @@ services:
       - mongo_data:/data/db
 
   # Go application service
-  app:
+  go_api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: go_app
+    container_name: go_api
     ports:
       - "${APP_PORT}:${APP_PORT}"
     environment:
@@ -33,6 +33,18 @@ services:
     depends_on:
       - mongodb_service
 
+  svelte_web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: svelte_web
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    environment:
+      - VITE_API_BASE_URL=go_api
+      - WEB_PORT=${WEB_PORT}
+    depends_on:
+      - go_api
 
 volumes:
   mongo_data:
