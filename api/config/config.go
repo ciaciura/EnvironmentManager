@@ -15,6 +15,7 @@ var (
 	APP_PORT         = ":" + os.Getenv("APP_PORT")
 	Env              = os.Getenv("Env")
 	IsDocker         = os.Getenv("DOCKER_ENV")
+	WEB_ORIGIN       = os.Getenv("WEB_ORIGIN")
 )
 
 func init() {
@@ -30,6 +31,7 @@ func init() {
 			ADMIN_USERNAME = os.Getenv("ADMIN_USERNAME")
 			ADMIN_PASSWORD = os.Getenv("ADMIN_PASSWORD")
 			APP_PORT = ":" + os.Getenv("APP_PORT")
+			WEB_ORIGIN = os.Getenv("WEB_ORIGIN")
 			Env = os.Getenv("Env")
 		}
 	}

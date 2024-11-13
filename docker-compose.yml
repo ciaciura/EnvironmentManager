@@ -30,6 +30,7 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - APP_PORT=${APP_PORT}
       - Env=${Env}
+      - WEB_ORIGIN=${WEB_ORIGIN}
     depends_on:
       - mongodb_service
 
@@ -41,7 +42,7 @@ services:
     ports:
       - "${WEB_PORT}:${WEB_PORT}"
     environment:
-      - VITE_API_BASE_URL=go_api
+      - VITE_API_BASE_URL=http://localhost:${APP_PORT}
       - WEB_PORT=${WEB_PORT}
     depends_on:
       - go_api

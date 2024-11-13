@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -55,6 +56,14 @@ func main() {
 	dbClient.EnsureDefaultAdmin(ctx)
 
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{config.WEB_ORIGIN},
+		AllowMethods:     []string{"POST", "GET"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	// Routes

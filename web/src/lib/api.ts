@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import type { User, Server, AccessRequest, ApiResponse } from '$lib/types';
 
-const API_URL = 'http://localhost:39564'; // Replace with your actual API URL
+const API_URL = import.meta.env.VITE_API_BASE_URL 
 
 async function handleResponse(response: Response): Promise<any> {
   const data = await response.json();
@@ -16,6 +16,8 @@ export async function login(credentials: User): Promise<ApiResponse> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': `${API_URL}`,
+      'Access-Control-Allow-Credentials': 'true'
     },
     body: JSON.stringify(credentials),
   });
